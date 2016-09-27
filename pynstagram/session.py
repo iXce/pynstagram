@@ -59,7 +59,7 @@ class PynstagramSession(object):
         if resp_json.get('status') != 'ok':
             raise IOError(resp_json.get('message'))
 
-    def upload_photo(self, path):
+    def upload_photo(self, fp):
         data = {
             '_csrftoken': 'missing',
             'upload_id': int(time.time()),
@@ -68,7 +68,9 @@ class PynstagramSession(object):
             'image_compression': '{"lib_name":"jt","lib_version":"1.3.0","quality":"70"}',
             'filename': 'pending_media_{}.jpg'.format(time.time())
         }
-        files = {'photo': open(path, 'rb')}
+        if not hasattr(fp, "read"):
+            fp = open(fp, 'rb')
+        files = {'photo': fp}
 
         resp = self.session.post(self.ENDPOINT_URL + '/upload/photo/', data, files=files)
         resp_json = resp.json()
